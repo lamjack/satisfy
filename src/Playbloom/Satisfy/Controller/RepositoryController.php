@@ -8,6 +8,7 @@ use Playbloom\Satisfy\Model\Repository;
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -78,9 +79,7 @@ class RepositoryController implements ControllerProviderInterface
                     $form = $app['form.factory']->create(
                         new RepositoryType(),
                         $repository,
-                        array(
-                            'pattern' => $app['repository.pattern'],
-                        )
+                        array()
                     );
 
                     return $app['twig']->render('new.html.twig', array('form' => $form->createView()));
@@ -200,9 +199,7 @@ class RepositoryController implements ControllerProviderInterface
                     $form = $app['form.factory']->create(
                         new RepositoryType(),
                         new Repository(),
-                        array(
-                            'pattern' => $app['repository.pattern'],
-                        )
+                        array()
                     );
 
                     $form->bind($request);
@@ -271,6 +268,23 @@ class RepositoryController implements ControllerProviderInterface
             ->bind('repository_delete')
             ->assert('repository', '[a-zA-Z0-9_-]+')
             ->convert('repository', $repositoryProvider);
+
+        $controllers
+            ->post(
+                '/update_packagist_schema',
+                function (Request $request) use ($app) {
+                    $redis = new \Redis();
+                    $redis->connect('127.0.0.1');
+                    $redis->select(1);
+                    $redis->lPush('wiz_server_shell_task', json_encode(array(
+                        'cmd' => 'bin/satis build wiz.json ./web',
+                        'cwd' => '/home/webadmin/www/packagist'
+                    )));
+                    $redis->close();
+                    return new JsonResponse(array('status' => true));
+                }
+            )
+            ->bind('update_packagist_schema');
 
         return $controllers;
     }

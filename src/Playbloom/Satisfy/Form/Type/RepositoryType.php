@@ -16,7 +16,7 @@ class RepositoryType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -56,13 +56,12 @@ class RepositoryType extends AbstractType
                 'text',
                 array(
                     'constraints' => array(
-                        new Assert\NotBlank(),
-                        new Assert\Regex(sprintf('#^%s$#', $options['pattern']))
+                        new Assert\NotBlank()
                     ),
                     'attr' => array_merge(array(
                         'placeholder' => 'Repository url',
                         'class' => 'input-block-level'
-                    ), $options['pattern']?array('pattern' => $options['pattern']):array())
+                    ), $options['pattern'] ? array('pattern' => $options['pattern']) : array())
                 )
             );
     }
