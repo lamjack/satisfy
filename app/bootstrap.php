@@ -51,6 +51,8 @@ $app->register(new TranslationServiceProvider(), array(
     'translator.messages' => array(),
 ));
 
+$app['session.storage.handler'] = null;
+
 if (! file_exists($app['satis.filename'])) {
     throw new RuntimeException('The "satis.json" file could not be found. See "app/config.php" for the configured file location.');
 }
